@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Emergency Service</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f4f4f4;
+        }
+
+        #app {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 300px;
+        }
+
+        .panel {
+            display: none;
+        }
+
+        .panel.hidden {
+            display: none;
+        }
+
+        .panel:not(.hidden) {
+            display: block;
+        }
+
+        h2 {
+            text-align: center;
+        }
+
+        label {
+            margin-top: 10px;
+            display: block;
+        }
+
+        input {
+            width: 100%;
+            padding: 8px;
+            margin: 5px 0 15px;
+            box-sizing: border-box;
+        }
+
+        button {
+            width: 100%;
+            padding: 10px;
+            margin-top: 10px;
+            cursor: pointer;
+            border: none;
+            background-color: #007bff;
+            color: white;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        button:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+
+        #emergencyDetails {
+            margin-top: 20px;
+            padding: 10px;
+            background: #f9f9f9;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <div id="loginPanel" class="panel">
+            <h2>Customer Login</h2>
+            <label for="loginEmail">Email:</label>
+            <input type="email" id="loginEmail" required>
+            <label for="loginPassword">Password:</label>
+            <input type="password" id="loginPassword" required>
+            <button id="loginButton">Login</button>
+            <button id="registerButton">Register</button>
+            <button id="driverRegisterButton">Driver Registration</button>
+        </div>
+
+        <div id="registrationPanel" class="panel hidden">
+            <h2>Customer Registration</h2>
+            <label for="regName">Full Name:</label>
+            <input type="text" id="regName" required>
+            <label for="regEmail">Email:</label>
+            <input type="email" id="regEmail" required>
+            <label for="regPassword">Password:</label>
+            <input type="password" id="regPassword" required>
+            <button id="registerSubmitButton">Register</button>
+            <button id="backToLoginButton">Back to Login</button>
+        </div>
+
+        <div id="driverRegistrationPanel" class="panel hidden">
+            <h2>Driver Registration</h2>
+            <label for="driverName">Full Name:</label>
+            <input type="text" id="driverName" required>
+            <label for="driverEmail">Driver Email:</label>
+            <input type="email" id="driverEmail" required>
+            <label for="driverPassword">Password:</label>
+            <input type="password" id="driverPassword" required>
+            <label for="driverLicense">License Number:</label>
+            <input type="text" id="driverLicense" required>
+            <button id="driverRegisterSubmitButton">Register Driver</button>
+            <button id="backToLoginFromDriverButton">Back to Login</button>
+        </div>
+
+        <div id="emergencyPanel" class="panel hidden">
+            <h2>Emergency Services</h2>
+            <button id="emergencyButton">Notify Emergency Services</button>
+            <button id="emergencyBackButton">Logout</button>
+            <div id="emergencyDetails" class="hidden">
+                <h3>Details</h3>
+                <p><strong>Driver Name:</strong> <span id="driverDetails"></span></p>
+                <p><strong>Driver Location:</strong> <span id="driverLocation"></span></p>
+                <p><strong>Customer Location:</strong> <span id="customerLocation"></span></p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const loginPanel = document.getElementById("loginPanel");
+            const registrationPanel = document.getElementById("registrationPanel");
+            const driverRegistrationPanel = document.getElementById("driverRegistrationPanel");
+            const emergencyPanel = document.getElementById("emergencyPanel");
+            const emergencyDetails = document.getElementById("emergencyDetails");
+
+            let customerLocation = "";
+            let driverLocation = "123 Main Street, Cityville"; // Simulated driver location
+
+            function showPanel(panelToShow) {
+                document.querySelectorAll(".panel").forEach(panel => {
+                    panel.classList.add("hidden");
+                });
+                panelToShow.classList.remove("hidden");
+            }
+
+            showPanel(loginPanel);
+
+            document.getElementById("loginButton").addEventListener("click", function () {
+                const email = document.getElementById("loginEmail").value.trim();
+                const password = document.getElementById("loginPassword").value.trim();
+
+                if (email && password) {
+                    alert("Login successful!");
+                    showPanel(emergencyPanel);
+
+                    // Get customer's current location
+                    if (navigator.geolocation) {
+                        navigator.geolocation.getCurrentPosition(function (position) {
+                            customerLocation = `Latitude: ${position.coords.latitude}, Longitude: ${position.coords.longitude}`;
+                            document.getElementById("customerLocation").textContent = customerLocation;
+                        }, function () {
+                            alert("Location access denied. Cannot display your location.");
+                        });
+                    } else {
+                        alert("Geolocation is not supported by this browser.");
+                    }
+                } else {
+                    alert("Please fill in all fields.");
+                }
+            });
+
+            document.getElementById("registerButton").addEventListener("click", function () {
+                showPanel(registrationPanel);
+            });
+
+            document.getElementById("registerSubmitButton").addEventListener("click", function () {
+                const name = document.getElementById("regName").value.trim();
+                const email = document.getElementById("regEmail").value.trim();
+                const password = document.getElementById("regPassword").value.trim();
+
+                if (name && email && password) {
+                    alert("Customer registration successful! You can now log in.");
+                    showPanel(loginPanel);
+                } else {
+                    alert("Please fill in all fields.");
+                }
+            });
+
+            document.getElementById("driverRegisterButton").addEventListener("click", function () {
+                showPanel(driverRegistrationPanel);
+            });
+
+            document.getElementById("driverRegisterSubmitButton").addEventListener("click", function () {
+                const name = document.getElementById("driverName").value.trim();
+                const email = document.getElementById("driverEmail").value.trim();
+                const password = document.getElementById("driverPassword").value.trim();
+                const license = document.getElementById("driverLicense").value.trim();
+
+                if (name && email && password && license) {
+                    alert("Driver registration successful! You can now log in.");
+                    showPanel(loginPanel);
+                } else {
+                    alert("Please fill in all fields.");
+                }
+            });
+
+            document.getElementById("backToLoginFromDriverButton").addEventListener("click", function () {
+                showPanel(loginPanel);
+            });
+
+            document.getElementById("backToLoginButton").addEventListener("click", function () {
+                showPanel(loginPanel);
+            });
+
+            document.getElementById("emergencyBackButton").addEventListener("click", function () {
+                alert("You have logged out.");
+                showPanel(loginPanel);
+            });
+
+            document.getElementById("emergencyButton").addEventListener("click", function () {
+                document.getElementById("driverDetails").textContent = "John Doe";
+                document.getElementById("driverLocation").textContent = driverLocation;
+
+                emergencyDetails.classList.remove("hidden");
+                alert("Emergency services have been notified!");
+            });
+        });
+    </script>
+</body>
+</html>
